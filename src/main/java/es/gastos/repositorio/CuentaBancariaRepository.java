@@ -11,4 +11,6 @@ public interface CuentaBancariaRepository extends JpaRepository<CuentaBancaria, 
     boolean existsByEmpresaIdAndNombre(Long empresaId, String nombre);
 
     Optional<CuentaBancaria> findByIdAndEmpresaId(Long id, Long empresaId);
+
+    List<CuentaBancaria> findByEmpresaIdAndActivaTrueOrderByNombre(Long empresaId);
 }
