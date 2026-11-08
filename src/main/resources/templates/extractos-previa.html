@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Vista previa del extracto</title>
+</head>
+
+<body>
+    <p><a th:href="@{/}">Inicio</a> | <a th:href="@{/extractos}">Cancelar y subir otro fichero</a></p>
+    <h1>Vista previa del extracto</h1>
+    <p>
+        Fichero: <strong th:text="${resultado.nombreFichero}"></strong> ·
+        Cuenta: <strong th:text="${cuentaNombre}"></strong>
+    </p>
+
+    <h3>Lo que la aplicación ha entendido</h3>
+    <ul>
+        <li th:each="a : ${resultado.avisos}" th:text="${a}"></li>
+    </ul>
+
+    <p>
+        Movimientos reconocidos: <strong th:text="${#lists.size(resultado.movimientos)}"></strong> |
+        Ya existentes (duplicados): <strong th:text="${duplicados}"></strong> |
+        Filas ignoradas: <strong th:text="${resultado.ignoradas}"></strong>
+    </p>
+    <p>
+        Total cargos: <strong th:text="${#numbers.formatDecimal(totalCargos,1,'POINT',2,'COMMA')} + ' €'"></strong> |
+        Total abonos: <strong th:text="${#numbers.formatDecimal(totalAbonos,1,'POINT',2,'COMMA')} + ' €'"></strong>
+        <br><small>Compara estos totales con los de tu banco para comprobar que la lectura es correcta.</small>
+    </p>
+
+    <p th:if="${#lists.isEmpty(resultado.movimientos)}" style="color:red">
+        No se ha encontrado ningún movimiento reconocible. Revisa que el fichero tenga títulos de columna
+        como «Fecha» e «Importe» (o «Cargo» / «Abono»).
+    </p>
+
+    <form th:unless="${#lists.isEmpty(resultado.movimientos)}" th:action="@{/extractos/confirmar}" method="post">
+        <table border="1" cellpadding="6">
+            <thead>
+                <tr>
+                    <th>
+                        <input type="checkbox" checked title="Seleccionar todos"
+                            onclick="document.querySelectorAll('input[name=seleccion]').forEach(c => c.checked = this.checked)">
+                    </th>
+                    <th>Fila</th>
+                    <th>Fecha</th>
+                    <th>F. valor</th>
+                    <th>Concepto</th>
+                    <th>Importe</th>
+                    <th>Saldo</th>
+                    <th>Aviso</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="m, it : ${resultado.movimientos}">
+                    <td><input type="checkbox" name="seleccion" th:value="${it.index}" th:checked="${!m.duplicado}">
+                    </td>
+                    <td th:text="${m.numFila}"></td>
+                    <td th:text="${#temporals.format(m.fechaOperacion,'dd/MM/yyyy')}"></td>
+                    <td th:text="${m.fechaValor != null} ? ${#temporals.format(m.fechaValor,'dd/MM/yyyy')} : ''"></td>
+                    <td th:text="${m.concepto}"></td>
+                    <td th:text="${#numbers.formatDecimal(m.importe,1,'POINT',2,'COMMA')} + ' €'"
+                        th:style="${m.importe.signum() < 0} ? 'color:#b00' : 'color:#060'"></td>
+                    <td
+                        th:text="${m.saldo != null} ? ${#numbers.formatDecimal(m.saldo,1,'POINT',2,'COMMA')} + ' €' : ''">
+                    </td>
+                    <td th:text="${m.duplicado} ? 'Ya existe' : ''" style="color:#b00"></td>
+                </tr>
+            </tbody>
+        </table>
+        <p><button type="submit">Importar los movimientos marcados</button></p>
+    </form>
+</body>
+
+</html>

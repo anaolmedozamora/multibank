@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Extractos bancarios</title>
+</head>
+
+<body>
+    <p><a th:href="@{/}">Inicio</a> | <a th:href="@{/cuentas}">Cuentas</a> | <a th:href="@{/gastos}">Gastos</a></p>
+    <h1>Extractos bancarios</h1>
+
+    <p th:if="${error}" th:text="${error}" style="color:red"></p>
+    <p th:if="${mensaje}" th:text="${mensaje}" style="color:green"></p>
+
+    <p th:if="${#lists.isEmpty(cuentasActivas)}">
+        Primero crea una cuenta en <a th:href="@{/cuentas}">Cuentas bancarias</a>.
+    </p>
+
+    <form th:unless="${#lists.isEmpty(cuentasActivas)}" th:action="@{/extractos/previsualizar}" method="post"
+        enctype="multipart/form-data">
+        <p>
+            <label>Cuenta
+                <select name="cuentaId" required>
+                    <option th:each="c : ${cuentasActivas}" th:value="${c.id}" th:text="${c.nombre}"></option>
+                </select>
+            </label>
+        </p>
+        <p><input type="file" name="archivo" accept=".xlsx,.xls,.csv,.txt" required></p>
+        <button type="submit">Subir y previsualizar</button>
+    </form>
+
+    <h2>Últimos movimientos importados</h2>
+    <table border="1" cellpadding="6">
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Cuenta</th>
+                <th>Concepto</th>
+                <th>Importe</th>
+                <th>Saldo</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="m : ${movimientos}">
+                <td th:text="${#temporals.format(m.fechaOperacion,'dd/MM/yyyy')}"></td>
+                <td th:text="${nombresCuenta[m.cuentaId]}"></td>
+                <td th:text="${m.concepto}"></td>
+                <td th:text="${#numbers.formatDecimal(m.importe,1,'POINT',2,'COMMA')} + ' €'"
+                    th:style="${m.importe.signum() < 0} ? 'color:#b00' : 'color:#060'"></td>
+                <td th:text="${m.saldo != null} ? ${#numbers.formatDecimal(m.saldo,1,'POINT',2,'COMMA')} + ' €' : ''">
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(movimientos)}">
+                <td colspan="5">Todavía no hay movimientos.</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+
+</html>
