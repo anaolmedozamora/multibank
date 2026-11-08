@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Vista previa de la importación</title>
+</head>
+
+<body>
+    <p><a th:href="@{/}">Inicio</a> | <a th:href="@{/importar}">Cancelar y subir otro fichero</a></p>
+    <h1>Vista previa</h1>
+    <p>Fichero: <strong th:text="${nombreFichero}"></strong></p>
+
+    <h3>Lo que la aplicación ha entendido</h3>
+    <ul>
+        <li th:each="a : ${resultado.avisos}" th:text="${a}"></li>
+    </ul>
+    <p>
+        Filas reconocidas: <strong th:text="${#lists.size(resultado.filas)}"></strong> |
+        Filas ignoradas (totales, notas, sin fecha o sin importe):
+        <strong th:text="${resultado.ignoradas}"></strong>
+    </p>
+
+    <p th:if="${#lists.isEmpty(resultado.filas)}" style="color:red">
+        No se ha encontrado ningún gasto reconocible. Revisa que el Excel tenga títulos de columna
+        como «Fecha» e «Importe».
+    </p>
+
+    <form th:unless="${#lists.isEmpty(resultado.filas)}" th:action="@{/importar/confirmar}" method="post">
+        <table border="1" cellpadding="6">
+            <thead>
+                <tr>
+                    <th>
+                        <input type="checkbox" checked title="Seleccionar todas"
+                            onclick="document.querySelectorAll('input[name=seleccion]').forEach(c => c.checked = this.checked)">
+                    </th>
+                    <th>Hoja</th>
+                    <th>Fila</th>
+                    <th>Fecha</th>
+                    <th>Concepto</th>
+                    <th>Importe</th>
+                    <th>Cuenta</th>
+                    <th>Estado</th>
+                    <th>Aviso</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="f, it : ${resultado.filas}">
+                    <td><input type="checkbox" name="seleccion" th:value="${it.index}" th:checked="${!f.duplicada}">
+                    </td>
+                    <td th:text="${f.hoja}"></td>
+                    <td th:text="${f.numFila}"></td>
+                    <td th:text="${#temporals.format(f.fecha,'dd/MM/yyyy')}"></td>
+                    <td th:text="${f.concepto}"></td>
+                    <td th:text="${#numbers.formatDecimal(f.importe,1,'POINT',2,'COMMA')} + ' €'"></td>
+                    <td th:text="${f.cuentaNombre != null} ? ${f.cuentaNombre} : '—'"></td>
+                    <td th:text="${f.estado}"></td>
+                    <td th:text="${f.duplicada} ? 'Posible duplicado' : ''" style="color:#b00"></td>
+                </tr>
+            </tbody>
+        </table>
+        <p><button type="submit">Importar las filas marcadas</button></p>
+    </form>
+</body>
+
+</html>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Importar gastos</title>
+</head>
+
+<body>
+    <p><a th:href="@{/}">Inicio</a> | <a th:href="@{/gastos}">Gastos</a></p>
+    <h1>Importar gastos desde Excel</h1>
+
+    <p th:if="${error}" th:text="${error}" style="color:red"></p>
+    <p th:if="${mensaje}" th:text="${mensaje}" style="color:green"></p>
+
+    <p>
+        Sube un Excel (.xlsx o .xls). La aplicación busca sola la fila de títulos y las columnas
+        (fecha, importe, concepto, estado, cuenta, vencimiento). Antes de guardar nada verás una vista previa.
+    </p>
+
+    <form th:action="@{/importar/previsualizar}" method="post" enctype="multipart/form-data">
+        <input type="file" name="archivo" accept=".xlsx,.xls" required>
+        <button type="submit">Subir y previsualizar</button>
+    </form>
+</body>
+
+</html>
