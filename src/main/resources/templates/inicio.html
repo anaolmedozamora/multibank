@@ -9,6 +9,9 @@
 <body>
     <h1>Gastos multibanco</h1>
     <p>Sesión iniciada como <strong th:text="${email}">usuario</strong></p>
+
+    <p><a th:href="@{/cuentas}">Cuentas bancarias</a></p>
+
     <form th:action="@{/logout}" method="post">
         <button type="submit">Cerrar sesión</button>
     </form>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Cuentas bancarias</title>
+</head>
+
+<body>
+    <p><a th:href="@{/}">Inicio</a></p>
+    <h1>Cuentas bancarias</h1>
+
+    <table border="1" cellpadding="6">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Banco</th>
+                <th>IBAN</th>
+                <th>Estado</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="c : ${cuentas}">
+                <td th:text="${c.nombre}"></td>
+                <td th:text="${c.banco}"></td>
+                <td th:text="${c.iban}"></td>
+                <td th:text="${c.activa} ? 'Activa' : 'Inactiva'"></td>
+                <td>
+                    <form th:action="@{/cuentas/{id}/estado(id=${c.id})}" method="post">
+                        <button type="submit" th:text="${c.activa} ? 'Desactivar' : 'Activar'"></button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(cuentas)}">
+                <td colspan="5">Todavía no hay cuentas.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Nueva cuenta</h2>
+    <form th:action="@{/cuentas}" th:object="${cuentaForm}" method="post">
+        <p>
+            <label>Nombre* <input type="text" th:field="*{nombre}"></label>
+            <span th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}" style="color:red"></span>
+        </p>
+        <p>
+            <label>Banco <input type="text" th:field="*{banco}"></label>
+        </p>
+        <p>
+            <label>IBAN <input type="text" th:field="*{iban}"></label>
+            <span th:if="${#fields.hasErrors('iban')}" th:errors="*{iban}" style="color:red"></span>
+        </p>
+        <button type="submit">Guardar cuenta</button>
+    </form>
+</body>
+
+</html>
